@@ -4,7 +4,7 @@ async def create_user(id_tg: int):
     async with aiosqlite.connect('data.db') as conn:
         await conn.execute('INSERT INTO users (id_tg) VALUES (?)', (id_tg,))
         await conn.commit()
-    return True
+    return await get_user(id_tg)
 
 async def get_user(id_tg: int):
     async with aiosqlite.connect('data.db') as conn:

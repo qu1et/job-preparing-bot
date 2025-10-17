@@ -1,10 +1,6 @@
-import os
 from telegram import (
     Update,
     ReplyKeyboardMarkup,
-    KeyboardButton,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
 )
 from telegram.ext import (
     ContextTypes,
@@ -24,11 +20,15 @@ from db.user_crud import (
 from db.data_crud import (
     add_spec,
 )
+from handlers.menu_handlers import main_menu
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not await get_user(update.effective_user.id):
-        await create_user(update.effective_user.id)
+    user = await get_user(update.effective_user.id)
+    if not user:
+        user = await create_user(update.effective_user.id)
+    if context.user_data.get('subed'):
+        return await main_menu(update, context)
     keyboard = [["Да", "Нет"]]
     markup = ReplyKeyboardMarkup(
         keyboard,
@@ -70,10 +70,10 @@ async def get_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = update.effective_message.text
-    await update_user(update.effective_user.id, 'name', name)
+    await update_user(update.effective_user.id, "name", name)
     keyboard = [
+        ["Backend", "Frontend"],
         [
-            "Backend",
             "Frontend",
             "Mobile",
             "QA",
@@ -83,7 +83,7 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Infrastructure & DevOps",
             "Informations Security",
             "Data & ML",
-        ]
+        ],
     ]
     markup = ReplyKeyboardMarkup(
         keyboard,
@@ -118,9 +118,9 @@ async def get_spec(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
     answer = update.effective_message.text
-    if answer.strip().lower():
-        await context.bot.send_message(chat_id=update.effective_user.id, text="Ladno")
-        return PAYMENT
+    if answer.strip().lower() == 'Оформить':
+        context.user_data['is_subed'] = True
+        return await main_menu(update, context)
     else:
         await context.bot.send_message(
             chat_id=update.effective_user.id, text="Ne Ladno"

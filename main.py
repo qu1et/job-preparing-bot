@@ -9,6 +9,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
     CallbackQueryHandler,
+    PicklePersistence
 )
 from handlers.greet_handlers import (
     start,
@@ -33,9 +34,11 @@ logging.basicConfig(
 )
 
 if __name__ == "__main__":
+    persistent = PicklePersistence('bot_cache')
     application = (
-        ApplicationBuilder().token(os.getenv("TOKEN")).post_init(create_tables).build()
+        ApplicationBuilder().token(os.getenv("TOKEN")).persistence(persistent).post_init(create_tables).build()
     )
+
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
@@ -72,6 +75,8 @@ if __name__ == "__main__":
             ],
         },
         fallbacks=[CommandHandler("start", start)],
+        persistent=True,
+        name='conv_handler'
     )
 
     application.add_handler(conv_handler)

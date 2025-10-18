@@ -9,7 +9,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
     CallbackQueryHandler,
-    PicklePersistence
+    PicklePersistence,
 )
 from handlers.greet_handlers import (
     start,
@@ -19,12 +19,23 @@ from handlers.greet_handlers import (
     get_sub,
     provide_payment,
 )
+from handlers.menu_handlers import(
+    main_menu,
+    get_questions_training,
+    select_specialty,
+    navigate_question,
+)
 from config.states import (
     START,
     GET_NAME,
     GET_SPEC,
     OFFER_SUB,
     PAYMENT,
+    MAIN_MENU,
+    QUESTIONS_MENU,
+    QUIZ,
+    SELECT_SPECIALTY,
+    QUESTION_CARD,
 )
 from db.database import create_tables
 
@@ -73,6 +84,28 @@ if __name__ == "__main__":
                     callback=provide_payment,
                 )
             ],
+
+
+            # main menu
+            MAIN_MENU: [
+                CallbackQueryHandler(callback=get_questions_training, pattern="get_questions")
+            ],
+            QUESTIONS_MENU: [
+                CallbackQueryHandler(callback=main_menu, pattern="back_to_menu"),
+            ],
+            SELECT_SPECIALTY: [
+                CallbackQueryHandler(callback=select_specialty, pattern="specialty_QA"),
+                CallbackQueryHandler(callback=select_specialty, pattern="specialty_Backend"),
+                CallbackQueryHandler(callback=select_specialty, pattern="specialty_Frontend"),
+                CallbackQueryHandler(callback=main_menu, pattern="back_to_menu"),
+            ],
+            QUESTION_CARD: [
+                CallbackQueryHandler(callback=navigate_question, pattern="next_question"),
+                CallbackQueryHandler(callback=navigate_question, pattern="prev_question"),
+                CallbackQueryHandler(callback=main_menu, pattern="back_to_menu"),
+            ],
+            QUIZ:[
+            ]
         },
         fallbacks=[CommandHandler("start", start)],
         persistent=True,

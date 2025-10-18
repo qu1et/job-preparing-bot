@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import aiosqlite
-from questions import QUESTION
+from db.questions import QUESTION
 
 @dataclass
 class Question:
@@ -33,6 +33,10 @@ async def get_question(id: int) -> Question:
         obj = await res.fetchone()
         return Question(**obj)
 
+async def get_questions(category: str):
+    async with aiosqlite.connect("data.db") as conn:
+        res = await conn.execute("SELECT * FROM questions WHERE category = ?", (category,))
+        return await res.fetchall()
 
 async def update_question(id: int, **kwargs):
     async with aiosqlite.connect("data.db") as conn:

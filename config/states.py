@@ -4,4 +4,9 @@
     GET_SPEC,
     OFFER_SUB,
     PAYMENT,
-) = range(5)
+    MAIN_MENU,
+    QUESTIONS_MENU,
+    QUIZ,
+    SELECT_SPECIALTY,
+    QUESTION_CARD,
+) = range(10)

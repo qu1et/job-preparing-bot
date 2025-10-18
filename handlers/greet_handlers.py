@@ -11,6 +11,7 @@ from config.states import (
     GET_SPEC,
     OFFER_SUB,
     PAYMENT,
+    MAIN_MENU,
 )
 from db.user_crud import (
     create_user,
@@ -27,7 +28,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = await get_user(update.effective_user.id)
     if not user:
         user = await create_user(update.effective_user.id)
-    if context.user_data.get('subed'):
+    if context.user_data.get('is_subed'):
         return await main_menu(update, context)
     keyboard = [["Да", "Нет"]]
     markup = ReplyKeyboardMarkup(
@@ -72,18 +73,10 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = update.effective_message.text
     await update_user(update.effective_user.id, "name", name)
     keyboard = [
-        ["Backend", "Frontend"],
-        [
-            "Frontend",
-            "Mobile",
-            "QA",
-            "Managment",
-            "Design & UX",
-            "Analytics",
-            "Infrastructure & DevOps",
-            "Informations Security",
-            "Data & ML",
-        ],
+        ["Backend", "Frontend", "Mobile", "QA"],
+        ["Analytics", "Managment", "Design & UX",], 
+        ["Infrastructure & DevOps", "Informations Security"],
+        ["Data & ML"]
     ]
     markup = ReplyKeyboardMarkup(
         keyboard,
@@ -118,15 +111,12 @@ async def get_spec(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
     answer = update.effective_message.text
-    if answer.strip().lower() == 'Оформить':
+    if answer.strip().lower() == 'оформить':
         context.user_data['is_subed'] = True
-        return await main_menu(update, context)
+        return PAYMENT
     else:
-        await context.bot.send_message(
-            chat_id=update.effective_user.id, text="Ne Ladno"
-        )
-        return START
+        return await main_menu(update, context)
 
 
 async def provide_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    return True
+    return await main_menu(update, context)

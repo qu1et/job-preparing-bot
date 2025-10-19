@@ -117,7 +117,9 @@ async def show_question_card(update: Update, context: ContextTypes.DEFAULT_TYPE)
     card_text += f"**Ответ:**\n||{escape_markdown_v2(question[3])}||"
     
     if query:
-        await update.callback_query.edit_message_text(
+        await update.callback_query.delete_message()
+        await context.bot.send_message(
+            chat_id=update.effective_user.id,
             text=card_text,
             reply_markup=markup,
             parse_mode="MarkdownV2"

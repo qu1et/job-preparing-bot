@@ -19,8 +19,6 @@ async def create_question(**kwargs) -> Question:
         columns = ', '.join(kwargs.keys())
         placeholders = ', '.join(['?' for _ in kwargs])
         values = tuple(kwargs.values())
-        
-        print(f'Inserting: {columns} with values {values}')
         await conn.execute(f"INSERT INTO questions ({columns}) VALUES ({placeholders})", values)
         await conn.commit()
     return True

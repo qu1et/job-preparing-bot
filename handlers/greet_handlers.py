@@ -22,12 +22,14 @@ from db.data_crud import (
     add_spec,
 )
 from handlers.menu_handlers import main_menu
+from logs.logger import logger
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = await get_user(update.effective_user.id)
     if not user:
         user = await create_user(update.effective_user.id)
+        logger.info(f'Пользователь {update.effective_user.username} создан ℹ️')
     if context.user_data.get('is_subed'):
         return await main_menu(update, context)
     keyboard = [["Да", "Нет"]]
@@ -113,8 +115,10 @@ async def get_sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
     answer = update.effective_message.text
     if answer.strip().lower() == 'оформить':
         context.user_data['is_subed'] = True
+        logger.info(f'Пользователь {update.effective_user.username} перешел к оформлению подписки ℹ️')
         return PAYMENT
     else:
+        logger.info(f'Пользователь {update.effective_user.username} отказался от подписки ℹ️')
         return await main_menu(update, context)
 
 

@@ -1,7 +1,3 @@
-import logging
-import os
-from dotenv import load_dotenv
-
 from telegram.ext import (
     Application,
     ApplicationBuilder,
@@ -20,7 +16,7 @@ from handlers.greet_handlers import (
     get_sub,
     provide_payment,
 )
-from handlers.menu_handlers import(
+from handlers.menu_handlers import (
     main_menu,
     get_questions_training,
     select_specialty,
@@ -39,20 +35,19 @@ from config.states import (
     QUESTION_CARD,
 )
 from db.database import create_tables
-
-load_dotenv()
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
+from logs.logger import logger
+from config.config import TOKEN
 
 
 def bot_init() -> Application:
-    persistent = PicklePersistence('bot_cache')
+    persistent = PicklePersistence("bot_cache")
     application = (
-        ApplicationBuilder().token(os.getenv("TOKEN")).persistence(persistent).post_init(create_tables).build()
+        ApplicationBuilder()
+        .token(TOKEN)
+        .persistence(persistent)
+        .post_init(create_tables)
+        .build()
     )
-    
-
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
@@ -87,34 +82,42 @@ def bot_init() -> Application:
                     callback=provide_payment,
                 )
             ],
-
-
             # main menu
             MAIN_MENU: [
-                CallbackQueryHandler(callback=get_questions_training, pattern="get_questions")
+                CallbackQueryHandler(
+                    callback=get_questions_training, pattern="get_questions"
+                )
             ],
             QUESTIONS_MENU: [
                 CallbackQueryHandler(callback=main_menu, pattern="back_to_menu"),
             ],
             SELECT_SPECIALTY: [
                 CallbackQueryHandler(callback=select_specialty, pattern="specialty_QA"),
-                CallbackQueryHandler(callback=select_specialty, pattern="specialty_Backend"),
-                CallbackQueryHandler(callback=select_specialty, pattern="specialty_Frontend"),
+                CallbackQueryHandler(
+                    callback=select_specialty, pattern="specialty_Backend"
+                ),
+                CallbackQueryHandler(
+                    callback=select_specialty, pattern="specialty_Frontend"
+                ),
                 CallbackQueryHandler(callback=main_menu, pattern="back_to_menu"),
             ],
             QUESTION_CARD: [
-                CallbackQueryHandler(callback=navigate_question, pattern="next_question"),
-                CallbackQueryHandler(callback=navigate_question, pattern="prev_question"),
+                CallbackQueryHandler(
+                    callback=navigate_question, pattern="next_question"
+                ),
+                CallbackQueryHandler(
+                    callback=navigate_question, pattern="prev_question"
+                ),
                 CallbackQueryHandler(callback=main_menu, pattern="back_to_menu"),
             ],
-            QUIZ:[
-            ]
+            QUIZ: [],
         },
         fallbacks=[CommandHandler("start", start)],
         persistent=True,
-        name='conv_handler'
+        name="conv_handler",
     )
 
     application.add_handler(conv_handler)
+    logger.info("Бот инициализирован ✅")
 
     return application

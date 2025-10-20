@@ -3,7 +3,8 @@ from contextlib import asynccontextmanager
 
 from telegram import Update
 from bot_init import bot_init
-import os
+from logs.logger import logger
+from config.config import WEBHOOK_URL, TELEGRAM_PATH, TELEGRAM_SECRET_TOKEN
 
 
 def fastapi_init():
@@ -19,15 +20,19 @@ async def lifespan(app: FastAPI):
 
     await bot_app.initialize()
     await bot_app.start()
+    logger.info("Бот запущен ✅")
     await bot_app.bot.set_webhook(
-        os.getenv("WEBHOOK_URL") + os.getenv("TELEGRAM_PATH"),
+        WEBHOOK_URL + TELEGRAM_PATH,
         allowed_updates=Update.ALL_TYPES,
         drop_pendings_update=True,
-        secret_token=os.getenv("TELEGRAM_SECRET_TOKEN"),
+        secret_token=TELEGRAM_SECRET_TOKEN,
     )
+    logger.info("Webhook установлен ✅")
     yield
     await bot_app.stop()
+    logger.info("Бот остановлен ⚠️")
     await bot_app.bot.delete_webhook()
+    logger.info("Webhook удален ⚠️")
     await bot_app.shutdown()
 
     # что будет когда сервер положим

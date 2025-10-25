@@ -11,7 +11,6 @@ from config.states import (
     GET_SPEC,
     OFFER_SUB,
     PAYMENT,
-    MAIN_MENU,
 )
 from db.user_crud import (
     create_user,

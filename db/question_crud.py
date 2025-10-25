@@ -51,6 +51,12 @@ async def delete_question(id: int):
         await conn.commit()
     return True
 
+async def delete_all_questions():
+    async with aiosqlite.connect("data.db") as conn:
+        await conn.execute("DELETE FROM questions")
+        await conn.commit()
+    return True
+
 
 if __name__ == "__main__":
     import asyncio
@@ -58,6 +64,6 @@ if __name__ == "__main__":
 
     async def main():
         for value in QUESTION.values():
-            await create_question(**{"question_title": value["question_title"], "question_body": value["question_body"], "answer": value["answer"], "category": value["category"]})
+            await create_question(**{"question_title": value["question_title"], "question_body": value["question_body"], "answer": value["answer"], "category": value["category"], "image_name": value["image_name"]})
 
     asyncio.run(main())

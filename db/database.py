@@ -23,5 +23,12 @@ async def create_tables(app):
                        answer TEXT,
                        category TEXT,
                        image_name TEXT NULL)''')
+    
+    await conn.execute('''CREATE TABLE IF NOT EXISTS questions_progress(
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER,
+                        question_num INTEGER,
+                        category TEXT,
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,''')
     await conn.commit()
     await conn.close()
